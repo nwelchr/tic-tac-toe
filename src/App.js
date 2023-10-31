@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 import "./App.css";
 
 const Background = styled.div`
@@ -24,7 +24,8 @@ const Cell = styled.div`
   justify-content: center;
   border: 1px solid #eee;
   cursor: pointer;
-  font-size: 2rem;
+  font-size: 3rem;
+  color: ${({ children }) => (children === "X" ? "fuchsia" : "turquoise")};
 `;
 
 const stateToCellMap = {
@@ -39,6 +40,13 @@ function App() {
   const [grid, setGrid] = useState(initialState);
   const [currPlayer, setCurrPlayer] = useState(1);
 
+  const checkIfCurrPlayerWon = () => {
+    const currPlayerCells = grid.reduce((acc, cell, idx) => {
+      if (cell === currPlayer) acc.push(idx);
+      return acc;
+    }, []);
+  };
+
   const takeTurn = (idx) => {
     if (grid[idx] !== 0) return;
     setGrid((prevGrid) => {
@@ -46,8 +54,12 @@ function App() {
       newGrid[idx] = currPlayer;
       return newGrid;
     });
-    setCurrPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
   };
+
+  useEffect(() => {
+    checkIfCurrPlayerWon();
+    setCurrPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
+  }, [grid]);
 
   return (
     <Background>
