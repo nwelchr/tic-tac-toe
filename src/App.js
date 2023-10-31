@@ -37,12 +37,25 @@ const initialState = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 function App() {
   const [grid, setGrid] = useState(initialState);
+  const [currPlayer, setCurrPlayer] = useState(1);
+
+  const takeTurn = (idx) => {
+    if (grid[idx] !== 0) return;
+    setGrid((prevGrid) => {
+      const newGrid = [...prevGrid];
+      newGrid[idx] = currPlayer;
+      return newGrid;
+    });
+    setCurrPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
+  };
 
   return (
     <Background>
       <Grid>
         {grid.map((val, idx) => (
-          <Cell>{stateToCellMap[val]}</Cell>
+          <Cell key={idx} onClick={() => takeTurn(idx)}>
+            {stateToCellMap[val]}
+          </Cell>
         ))}
       </Grid>
     </Background>
