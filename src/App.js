@@ -11,12 +11,32 @@ const Background = styled.div`
   flex-direction: column;
 `;
 
+const WinnerText = styled.h1`
+  padding: 10px;
+  position: absolute;
+  top: -120px;
+  font-size: 3rem;
+  font-weight: 300;
+`;
+
+const PlayerText = styled(WinnerText)`
+  color: ${({ player }) => (player === 1 ? "fuchsia" : "turquoise")};
+  opacity: 0.8;
+`;
+
+const GameContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+`;
+
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 100px);
   grid-template-rows: repeat(3, 100px);
   gap: 10px;
-  border: 2px solid #333;
+  pointer-events: ${({ isGameActive }) => (isGameActive ? "auto" : "none")};
 `;
 
 const Cell = styled.div`
@@ -27,6 +47,22 @@ const Cell = styled.div`
   cursor: pointer;
   font-size: 3rem;
   color: ${({ children }) => (children === "X" ? "fuchsia" : "turquoise")};
+`;
+
+const PlayAgainButton = styled.button`
+  border: 1px solid #eee;
+  background-color: #111;
+  font-size: 2rem;
+  color: #eee;
+  padding: 10px;
+  margin: 20px;
+  position: absolute;
+  bottom: -100px;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(3);
+  }
 `;
 
 const stateToCellMap = {
@@ -51,44 +87,60 @@ const winningCombinations = [
 function App() {
   const [grid, setGrid] = useState(initialState);
   const [currPlayer, setCurrPlayer] = useState(1);
-  const [winner, setWinner] = useState();
+  const [winner, setWinner] = useState("");
 
-  const checkIfCurrPlayerWon = () => {
-    const currPlayerCells = grid.reduce((acc, cell, idx) => {
-      if (cell === currPlayer) acc.push(idx);
+  const checkIfCurrPlayerWon = (_grid, player) => {
+    const playerCells = _grid.reduce((acc, cell, idx) => {
+      if (cell === player) acc.push(idx);
       return acc;
     }, []);
     winningCombinations.forEach((combination) => {
-      if (combination.every((val) => currPlayerCells.includes(val))) {
-        setWinner(currPlayer);
+      if (combination.every((val) => playerCells.includes(val))) {
+        setWinner(player);
       }
     });
   };
 
   const takeTurn = (idx) => {
     if (grid[idx] !== 0) return;
-    setGrid((prevGrid) => {
-      const newGrid = [...prevGrid];
-      newGrid[idx] = currPlayer;
-      return newGrid;
-    });
+    const newGrid = [...grid];
+    newGrid[idx] = currPlayer;
+    setGrid(newGrid);
+
+    if (checkIfCurrPlayerWon(newGrid, currPlayer)) {
+      setWinner(currPlayer);
+    } else {
+      setCurrPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
+    }
   };
 
-  useEffect(() => {
-    checkIfCurrPlayerWon();
-    setCurrPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
-  }, [grid]);
+  const restart = () => {
+    setGrid(initialState);
+    setCurrPlayer(winner === 1 ? 2 : 1);
+    setWinner("");
+  };
 
   return (
     <Background>
-      {winner && <h1>{winner === 1 ? "X" : "O"} won!</h1>}
-      <Grid>
-        {grid.map((val, idx) => (
-          <Cell key={idx} onClick={() => takeTurn(idx)}>
-            {stateToCellMap[val]}
-          </Cell>
-        ))}
-      </Grid>
+      <GameContainer>
+        {winner ? (
+          <WinnerText>Player {winner} won!</WinnerText>
+        ) : (
+          <PlayerText player={currPlayer}>
+            Player {currPlayer}'s turn
+          </PlayerText>
+        )}
+        <Grid isGameActive={!winner}>
+          {grid.map((val, idx) => (
+            <Cell key={idx} onClick={() => takeTurn(idx)}>
+              {stateToCellMap[val]}
+            </Cell>
+          ))}
+        </Grid>
+        {winner && (
+          <PlayAgainButton onClick={restart}>Play Again?</PlayAgainButton>
+        )}
+      </GameContainer>
     </Background>
   );
 }
