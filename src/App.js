@@ -107,6 +107,8 @@ function App() {
 
     if (isCurrPlayerWinner(newGrid, currPlayer)) {
       setWinner(currPlayer);
+    } else if (newGrid.every((cellState) => cellState !== 0)) {
+      setWinner("tie");
     } else {
       setCurrPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
     }
@@ -122,7 +124,9 @@ function App() {
     <Background>
       <GameContainer>
         {winner ? (
-          <WinnerText>Player {winner} won!</WinnerText>
+          <WinnerText>
+            {winner === "tie" ? "It's a tie!" : `Player ${winner} won!`}
+          </WinnerText>
         ) : (
           <PlayerText player={currPlayer}>
             Player {currPlayer}'s turn
