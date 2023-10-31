@@ -84,20 +84,22 @@ const winningPatterns = [
   [2, 4, 6],
 ];
 
+const isTie = (gameGrid) => gameGrid.every((cellState) => cellState !== 0);
+
+const isCurrPlayerWinner = (gameGrid, player) => {
+  const playerCells = gameGrid.reduce((acc, cellState, gridIdx) => {
+    if (cellState === player) acc.push(gridIdx);
+    return acc;
+  }, []);
+  return winningPatterns.some((combination) =>
+    combination.every((val) => playerCells.includes(val))
+  );
+};
+
 function App() {
   const [grid, setGrid] = useState(initialState);
   const [currPlayer, setCurrPlayer] = useState(1);
   const [winner, setWinner] = useState("");
-
-  const isCurrPlayerWinner = (gameGrid, player) => {
-    const playerCells = gameGrid.reduce((acc, cellState, gridIdx) => {
-      if (cellState === player) acc.push(gridIdx);
-      return acc;
-    }, []);
-    return winningPatterns.some((combination) =>
-      combination.every((val) => playerCells.includes(val))
-    );
-  };
 
   const takeTurn = (gridIdx) => {
     if (grid[gridIdx] !== 0) return;
@@ -107,7 +109,7 @@ function App() {
 
     if (isCurrPlayerWinner(newGrid, currPlayer)) {
       setWinner(currPlayer);
-    } else if (newGrid.every((cellState) => cellState !== 0)) {
+    } else if (isTie(newGrid)) {
       setWinner("tie");
     } else {
       setCurrPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
