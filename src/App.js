@@ -73,7 +73,7 @@ const stateToCellMap = {
 
 const initialState = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-const winningCombinations = [
+const winningPatterns = [
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],
@@ -89,25 +89,23 @@ function App() {
   const [currPlayer, setCurrPlayer] = useState(1);
   const [winner, setWinner] = useState("");
 
-  const checkIfCurrPlayerWon = (_grid, player) => {
-    const playerCells = _grid.reduce((acc, cell, idx) => {
-      if (cell === player) acc.push(idx);
+  const isCurrPlayerWinner = (gameGrid, player) => {
+    const playerCells = gameGrid.reduce((acc, cellState, gridIdx) => {
+      if (cellState === player) acc.push(gridIdx);
       return acc;
     }, []);
-    winningCombinations.forEach((combination) => {
-      if (combination.every((val) => playerCells.includes(val))) {
-        setWinner(player);
-      }
-    });
+    return winningPatterns.some((combination) =>
+      combination.every((val) => playerCells.includes(val))
+    );
   };
 
-  const takeTurn = (idx) => {
-    if (grid[idx] !== 0) return;
+  const takeTurn = (gridIdx) => {
+    if (grid[gridIdx] !== 0) return;
     const newGrid = [...grid];
-    newGrid[idx] = currPlayer;
+    newGrid[gridIdx] = currPlayer;
     setGrid(newGrid);
 
-    if (checkIfCurrPlayerWon(newGrid, currPlayer)) {
+    if (isCurrPlayerWinner(newGrid, currPlayer)) {
       setWinner(currPlayer);
     } else {
       setCurrPlayer((prevPlayer) => (prevPlayer === 1 ? 2 : 1));
@@ -131,9 +129,9 @@ function App() {
           </PlayerText>
         )}
         <Grid isGameActive={!winner}>
-          {grid.map((val, idx) => (
-            <Cell key={idx} onClick={() => takeTurn(idx)}>
-              {stateToCellMap[val]}
+          {grid.map((cellState, gridIdx) => (
+            <Cell key={gridIdx} onClick={() => takeTurn(gridIdx)}>
+              {stateToCellMap[cellState]}
             </Cell>
           ))}
         </Grid>
