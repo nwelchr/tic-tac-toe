@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import "./App.css";
 
@@ -26,19 +27,23 @@ const Cell = styled.div`
   font-size: 2rem;
 `;
 
+const stateToCellMap = {
+  0: "",
+  1: "X",
+  2: "O",
+};
+
+const initialState = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
 function App() {
+  const [grid, setGrid] = useState(initialState);
+
   return (
     <Background>
       <Grid>
-        <Cell>Hello</Cell>
-        <Cell>Hello</Cell>
-        <Cell>Hello</Cell>
-        <Cell>Hello</Cell>
-        <Cell>Hello</Cell>
-        <Cell>Hello</Cell>
-        <Cell>Hello</Cell>
-        <Cell>Hello</Cell>
-        <Cell>Hello</Cell>
+        {grid.map((val, idx) => (
+          <Cell>{stateToCellMap[val]}</Cell>
+        ))}
       </Grid>
     </Background>
   );
