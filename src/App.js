@@ -8,6 +8,7 @@ const Background = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 `;
 
 const Grid = styled.div`
@@ -36,15 +37,32 @@ const stateToCellMap = {
 
 const initialState = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+const winningCombinations = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
+
 function App() {
   const [grid, setGrid] = useState(initialState);
   const [currPlayer, setCurrPlayer] = useState(1);
+  const [winner, setWinner] = useState();
 
   const checkIfCurrPlayerWon = () => {
     const currPlayerCells = grid.reduce((acc, cell, idx) => {
       if (cell === currPlayer) acc.push(idx);
       return acc;
     }, []);
+    winningCombinations.forEach((combination) => {
+      if (combination.every((val) => currPlayerCells.includes(val))) {
+        setWinner(currPlayer);
+      }
+    });
   };
 
   const takeTurn = (idx) => {
@@ -63,6 +81,7 @@ function App() {
 
   return (
     <Background>
+      {winner && <h1>{winner === 1 ? "X" : "O"} won!</h1>}
       <Grid>
         {grid.map((val, idx) => (
           <Cell key={idx} onClick={() => takeTurn(idx)}>
