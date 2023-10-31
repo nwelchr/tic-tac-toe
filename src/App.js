@@ -3,7 +3,7 @@ import styled from "styled-components";
 import "./App.css";
 
 const Background = styled.div`
-  width: 100vh;
+  width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;
